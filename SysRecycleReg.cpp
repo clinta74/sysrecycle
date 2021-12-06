@@ -4,6 +4,12 @@
 #include <string>
 #include "SysRecycleReg.h"
 
+Registry::Registry()
+{
+	hKey = NULL;
+	hKeyAutorun = NULL;
+}
+
 bool Registry::OpenRegKey()
 {
 	char KeyName[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel";
@@ -28,7 +34,7 @@ bool Registry::OpenAutorunRegKey()
 	char KeyName[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	long lResult;
 
-	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE | KEY_QUERY_VALUE, NULL, &hKeyAutorun, NULL); 
+	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyAutorun, NULL);
 	if(lResult == ERROR_SUCCESS) return true;
 	return false;
 }
@@ -41,16 +47,13 @@ bool Registry::CloseAutorunRegKey()
 	if(lResult == ERROR_SUCCESS) return true;
 	return false;
 }
-Registry::Registry()
-{
-}
 
 bool Registry::IsHidden()
 {
     char ValueName[] = "{645FF040-5081-101B-9F08-00AA002F954E}";
-	DWORD value;
+	DWORD value = 0;
 	DWORD dwLen = sizeof(DWORD);
-	long lResult;
+	long lResult = 0;
 
 	if(OpenRegKey())
 	{
@@ -69,30 +72,49 @@ bool Registry::IsHidden()
 bool Registry::IsAutorun()
 {
     char ValueName[] = "SysRecycle";
-	DWORD value;
-	DWORD dwLen = sizeof(DWORD);
-	long lResult;
+	BYTE byteArray[2048] = {0};
+	DWORD dwLen = sizeof(byteArray);
 
 	if(OpenAutorunRegKey())
 	{
-		lResult = ::RegQueryValueEx(hKey, ValueName, NULL, NULL, (LPBYTE)&value, &dwLen);
+		long lResult = ::RegQueryValueEx(hKeyAutorun, ValueName, NULL, NULL, byteArray, &dwLen);
+		if (lResult == ERROR_SUCCESS)
+		{
+			LPWSTR executablePath = GetExecutablePath();
+			bool match = true;
+			for (DWORD ct = 0; ct < dwLen; ct++, executablePath++)
+			{
+				if (executablePath[0] != byteArray[ct])
+				{
+					match = false;
+					break;
+				}
+			}
+
+			return match;
+		}
 		CloseAutorunRegKey();
 	}
 
-	if(lResult == ERROR_SUCCESS)
-	{
-		if(value == 1) return true;
-		else return false;
-	}
 	return false;
+}
+
+LPWSTR Registry::GetExecutablePath()
+{
+	int pNumArgs = 0;
+	LPWSTR commandLine = GetCommandLineW();
+	LPWSTR* szArglist = CommandLineToArgvW(commandLine, &pNumArgs);
+
+	if (pNumArgs > 0) return szArglist[0];
+	return NULL;
 }
 
 bool Registry::ToggleHiddenIcon(HWND hWnd)
 {
     char ValueName[] = "{645FF040-5081-101B-9F08-00AA002F954E}";
-	DWORD value;
+	DWORD value = 0;
 	DWORD dwLen = sizeof(DWORD);
-	long lResult;
+	long lResult = 0;
 
 	if(IsHidden()) value = 0;
 	else value = 1;
@@ -106,7 +128,6 @@ bool Registry::ToggleHiddenIcon(HWND hWnd)
 	if(lResult == ERROR_SUCCESS)
 	{
 		RedrawDesktop();
-		// RefreshDesktopIcons();
 		return true;
 	}
 	else MessageBox(hWnd, "Could not access the Registry to remove Recycle Bin from desktop.", "Error", 0);
@@ -115,28 +136,44 @@ bool Registry::ToggleHiddenIcon(HWND hWnd)
 
 bool Registry::SetAutorun(HWND hWnd)
 {
-    char ValueName[] = "SysRecycle";
-	DWORD value;
-	DWORD dwLen = sizeof(DWORD);
-	long lResult;
-
-	if(IsAutorun()) value = 0;
-	else value = 1;
+    LPCWSTR keyName = L"SysRecycle";
+	size_t dwLen = sizeof(DWORD);
+	LSTATUS lResult = 0;
 
 	if(OpenRegKey())
 	{
-		lResult = ::RegSetValueEx(hKey, ValueName, 0, REG_SZ, (LPBYTE)&value, dwLen);
-		CloseRegKey();
-	}
+		bool isAutorun = IsAutorun();
+		if (isAutorun)
+		{
+			lResult = ::RegDeleteKeyValueW(hKeyAutorun, NULL, keyName);
+		}
+		else
+		{
+			const size_t count = MAX_PATH * 2;
+			wchar_t szValue[count] = {};
 
-	if(lResult == ERROR_SUCCESS)
-	{
-		RedrawDesktop();
-		// RefreshDesktopIcons();
-		return true;
+			LPWSTR pathToExe = GetExecutablePath();
+
+			wcscpy_s(szValue, count, L"\"");
+			wcscat_s(szValue, count, pathToExe);
+			wcscat_s(szValue, count, L"\" ");
+
+			dwLen = (wcslen(szValue) + 1) * 2;
+
+			lResult = ::RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL, 0, (KEY_WRITE | KEY_READ), NULL, &hKeyAutorun, NULL);
+			if (lResult == ERROR_SUCCESS)
+			{
+				lResult = ::RegSetValueExW(hKeyAutorun, keyName, 0, REG_SZ, (BYTE*)szValue, dwLen);
+			}
+		}
+		CloseRegKey();
+		return lResult == ERROR_SUCCESS;
 	}
-	else MessageBox(hWnd, "Could not access the Registry to change Autorun for SysRecycle.", "Error", 0);
-	return false;
+	else
+	{
+		MessageBox(hWnd, "Could not access the Registry to change Autorun for SysRecycle.", "Error", 0);
+		return false;
+	}
 }
 
 void Registry::RefreshDesktopIcons()

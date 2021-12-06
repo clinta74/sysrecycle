@@ -10,7 +10,7 @@ private:
 	void RedrawDesktop();
 	bool OpenAutorunRegKey();
 	bool CloseAutorunRegKey();
-	//std::string getexepath();
+	LPWSTR GetExecutablePath();
 
 public:
 	Registry();

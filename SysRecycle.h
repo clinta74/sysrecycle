@@ -12,5 +12,5 @@ ULONG m_ulSHChangeNotifyRegister;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 bool OpenRecycleBin(HWND hWnd);
-long NumFilesInBin(HWND hWnd);
+long long NumFilesInBin(HWND hWnd);
 void EmptyRecycleBin(HWND hWnd);

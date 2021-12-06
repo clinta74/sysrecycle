@@ -7,18 +7,37 @@
 #include "SysRecycleReg.h"
 
 const int IDC_TRAY1      = 1000;
+
+const int ID_POPUP_ABOUT = 2;
+const int ID_POPUP_HIDERECYCLEBIN = 3;
+const int ID_POPUP_EMPTYRECYCLEBIN = 4;
+const int ID_POPUP_OPENRECYCLEBIN = 5;
+const int ID_POPUP_RUNATSTARTUP = 40001;
 const char *HINT_MESSAGE = "SysRecycle";
 Registry *Reg;
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
 	WNDCLASSEX wcex;
-	EmptyIcon = LoadIcon(hInstance, "EMPTYICON");
-	FullIcon = LoadIcon(hInstance, "FULLICON");
+
+	HICON EmptyIcon = NULL; 
+	HICON FullIcon = NULL;
+
+
+	if (lstrcmp(lpCmdLine, "aero") == 0)
+	{
+		EmptyIcon = LoadIcon(hInstance, "EMPTYICON");
+		FullIcon = LoadIcon(hInstance, "FULLICON");
+	}
+	else
+	{
+		EmptyIcon = LoadIcon(hInstance, "EMPTYICONMETRO");
+		FullIcon = LoadIcon(hInstance, "FULLICONMETRO");
+	}
 
 	Reg = new Registry();
 
-	if (!nCmdShow) exit(0);
+	if (!nShowCmd) exit(0);
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style= CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc= (WNDPROC)WndProc;
@@ -51,7 +70,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	MainMenu = LoadMenu(hInstance, "POPUPMENU");
 	if (MainMenu == NULL)
+	{
 		MessageBox(hWnd, "Menu not found.", "Error", 0);
+		exit(0);
+	}
 
 	PopupMenu = GetSubMenu(MainMenu, 0);
 
@@ -66,13 +88,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
         // Returns a positive integer registration identifier (ID).
         // Returns zero if out of memory or in response to invalid parameters.
-        m_ulSHChangeNotifyRegister = SHChangeNotifyRegister(hWnd,                                            // Hwnd to receive notification
-                SHCNRF_ShellLevel,                                                                    // Event types of interest (sources)
-                SHCNE_RMDIR|SHCNE_DELETE,                                              // Events of interest - use                                           // SHCNE_ALLEVENTS for all events
-                WM_FILEDELETED,                                               // Notification message to be sent                                           // upon the event
-                1,                                                                   // Number of entries in the pfsne array
-                &shCNE);  // Array of SHChangeNotifyEntry structures that                           // contain the notifications. This array should                           // always be set to one when calling SHChnageNotifyRegister
-                          // or SHChangeNotifyDeregister will not work properly.
+        m_ulSHChangeNotifyRegister = SHChangeNotifyRegister(hWnd,             // Hwnd to receive notification
+                SHCNRF_ShellLevel,                                            // Event types of interest (sources)
+                SHCNE_RMDIR|SHCNE_DELETE,                                     // Events of interest - use SHCNE_ALLEVENTS for all events
+                WM_FILEDELETED,                                               // Notification message to be sent upon the event
+                1,                                                            // Number of entries in the pfsne array
+                &shCNE);  
+		// Array of SHChangeNotifyEntry structures that
+		// contain the notifications. This array should                           
+		// always be set to one when calling SHChnageNotifyRegister
+        // or SHChangeNotifyDeregister will not work properly.
     
         assert(m_ulSHChangeNotifyRegister != 0);    // Shell notification failed
     }
@@ -101,10 +126,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (wParam)
 		{
-		case 5:
+		case ID_POPUP_OPENRECYCLEBIN:
 			OpenRecycleBin(hWnd);
 			break;
-		case 4:
+		case ID_POPUP_EMPTYRECYCLEBIN:
 			EmptyRecycleBin(hWnd);
 			if (NumFilesInBin(hWnd) == 0)
 			{
@@ -112,17 +137,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				Shell_NotifyIcon(NIM_MODIFY, &IconData);
 			}
 			break;
-		case 3:
+		case ID_POPUP_HIDERECYCLEBIN:
 			Reg->ToggleHiddenIcon(hWnd);
 			break;
-		case 2:
+		case ID_POPUP_ABOUT:
 			MessageBox(hWnd,
 				"SysRecycle (Freeware)\n"
-				"for Windows 98, Me, 2000, XP, & Vista\n"
-				"Version 3.0\n"
+				"for Windows 10 and 11\n"
+				"Version 6.0\n"
 				"by Clinton Andrews\n"
-				"intelliclint@chartermi.net\n"
-				"Copyright (C) 2009 Clinton Andrews\n\n"
+				"clinton.andrews@att.net\n"
+				"Copyright (C) 2021 Clinton Andrews\n\n"
 				"THIS SOFTWARE IS PROVIDED 'AS IS'. THE DEVELOPER OF THIS SOFTWARE WILL NOT BE "
 				"HELD LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR "
 				"CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, LOSS OF USE, DATA, OR "
@@ -137,6 +162,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 1:
 			DestroyWindow(hWnd);
 			break;
+		case ID_POPUP_RUNATSTARTUP:
+			Reg->SetAutorun(hWnd);
+			break;
 		}
 		break;
 	case WM_TRAYNOTIFY:
@@ -146,9 +174,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			POINT WinPoint;           // find the mouse cursor
 			GetCursorPos(&WinPoint);  // using api function, store
 			SetForegroundWindow(hWnd);
+
 			menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+
 			menuItemInfo.fMask = MIIM_STATE;
-			if(!GetMenuItemInfo(PopupMenu, 3, false, &menuItemInfo))
+			if(!GetMenuItemInfo(PopupMenu, ID_POPUP_HIDERECYCLEBIN, false, &menuItemInfo))
 				exit(GetLastError());
 			else
 			{
@@ -156,10 +186,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					menuItemInfo.fState = MFS_CHECKED | MFS_ENABLED;
 				else
 					menuItemInfo.fState = MFS_ENABLED;
-				SetMenuItemInfo(PopupMenu, 3, false, &menuItemInfo);
+				SetMenuItemInfo(PopupMenu, ID_POPUP_HIDERECYCLEBIN, false, &menuItemInfo);
 			}
 
-			menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+			menuItemInfo.fMask = MIIM_STATE;
+			if (!GetMenuItemInfo(PopupMenu, ID_POPUP_RUNATSTARTUP, false, &menuItemInfo))
+				exit(GetLastError());
+			else
+			{
+				if (Reg->IsAutorun())
+					menuItemInfo.fState = MFS_CHECKED | MFS_ENABLED;
+				else
+					menuItemInfo.fState = MFS_ENABLED;
+				SetMenuItemInfo(PopupMenu, ID_POPUP_RUNATSTARTUP, false, &menuItemInfo);
+			}
+
 			menuItemInfo.fMask = MIIM_TYPE;
 			menuItemInfo.fType = MFT_STRING;
 			if(!GetMenuItemInfo(PopupMenu, 6, false, &menuItemInfo))
@@ -168,10 +209,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				menuItemInfo.fState = MFS_ENABLED;
 				menuItemInfo.dwTypeData = menuText;
-				sprintf_s(menuText, "%i files", NumFilesInBin(hWnd));
+				sprintf_s(menuText, "%lli files", NumFilesInBin(hWnd));
 				menuItemInfo.cch = (UINT)strlen(menuText);
 				SetMenuItemInfo(PopupMenu, 6, false, &menuItemInfo);
 			}
+
 			TrackPopupMenuEx(PopupMenu, TPM_VERTICAL, WinPoint.x, WinPoint.y, hWnd, NULL);
 			PostMessage(hWnd, WM_NULL, 0,0);
 			break;
@@ -211,24 +253,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 bool OpenRecycleBin(HWND hWnd)
 {
-	HINSTANCE Result;
+	HINSTANCE result;
 
 	char path[] = "::{645FF040-5081-101B-9F08-00AA002F954E}";
-	Result = ShellExecute(hWnd, "explore", path, NULL, NULL, SW_SHOWNORMAL);
+	result = ShellExecute(hWnd, "explore", path, NULL, NULL, SW_SHOWNORMAL);
 
-	if((int)Result > 32) return true;
-	char msg[50];
-	sprintf_s(msg, "Could not open the Recycle Bin! %l", Result);
+	if((INT_PTR)result > 32) return true;
+	char msg[100];
+	sprintf_s(msg, sizeof(msg), "Error Code: %lli Could not open the Recycle Bin!", (ULONG_PTR)result);
 	MessageBox(hWnd, msg, "Error", 0);
 	return false;
 }
 
-long NumFilesInBin(HWND hWnd)
+long long NumFilesInBin(HWND hWnd)
 {
 	SHQUERYRBINFO info = {0};
 	info.cbSize = sizeof(info);
 	HRESULT result = SHQueryRecycleBin(0, &info);
-	if (result)
+	if (result != S_OK)
 	{
 		MessageBox(hWnd, "Could get the number of files in Recycle Bin!", "Error", 0);
 		return 0;
