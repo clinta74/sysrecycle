@@ -200,7 +200,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysRecycle"
         "ProductCode" = "8:{1C408E88-0029-4DD6-B87B-1CAE53E99ED1}"
-        "PackageCode" = "8:{06E98189-1650-4B38-B0F3-AB74010D6177}"
+        "PackageCode" = "8:{5A544573-2E79-4F8D-B800-B4D530C0B7F7}"
         "UpgradeCode" = "8:{57D24C6F-414D-411A-91B1-0E398A4FD40E}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"

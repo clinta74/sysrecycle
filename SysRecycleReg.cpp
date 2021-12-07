@@ -176,37 +176,6 @@ bool Registry::SetAutorun(HWND hWnd)
 	}
 }
 
-void Registry::RefreshDesktopIcons()
-{
-    char val[256];
-    HKEY hKey;
-
-    long lResult =::RegOpenKeyEx(HKEY_CURRENT_USER, "Control Panel\\Desktop\\WindowMetrics", 0, KEY_READ, &hKey);
-    if(lResult != ERROR_SUCCESS) return;
-	char buff[256] = {0};
-    DWORD sz = sizeof(buff);
-    DWORD typ = REG_SZ;
-	::RegQueryValueEx(hKey,"Shell Icon Size",0,&typ,(LPBYTE)buff,&sz);
-	::RegCloseKey(hKey);
-
-    int i = atoi(buff);
-    sprintf_s(val,"%d",i + 1);
-
-    ::RegOpenKeyEx(HKEY_CURRENT_USER,"Control Panel\\Desktop\\WindowMetrics",0,KEY_WRITE,&hKey);
-	::RegSetValueEx(hKey,"Shell Icon Size",0,REG_SZ,(LPBYTE)val,(DWORD)strlen(val));
-	::RegCloseKey(hKey);
-
-    ::SendMessage(HWND_BROADCAST,WM_SETTINGCHANGE,SPI_SETNONCLIENTMETRICS,NULL);
-
-	i = atoi(buff);
-	sprintf_s(val,"%d",i);
-    RegOpenKeyEx(HKEY_CURRENT_USER, "Control Panel\\Desktop\\WindowMetrics", 0,KEY_WRITE, &hKey);
-	::RegSetValueEx(hKey,"Shell Icon Size",0,REG_SZ,(LPBYTE)val, (DWORD)strlen(val));
-	::RegCloseKey(hKey);
-
-	::SendMessage(HWND_BROADCAST,WM_SETTINGCHANGE,SPI_SETNONCLIENTMETRICS,NULL);
-}
-
 void Registry::RedrawDesktop()
 {
 	::SHChangeNotify(SHCNE_ASSOCCHANGED, 0, 0, 0);

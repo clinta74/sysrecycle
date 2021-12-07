@@ -18,11 +18,7 @@ Registry *Reg;
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-	WNDCLASSEX wcex;
-
-	HICON EmptyIcon = NULL; 
-	HICON FullIcon = NULL;
-
+	WNDCLASSEX wcex{};
 
 	if (lstrcmp(lpCmdLine, "aero") == 0)
 	{
@@ -134,8 +130,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (NumFilesInBin(hWnd) == 0)
 			{
 				IconData.hIcon = EmptyIcon;
-				Shell_NotifyIcon(NIM_MODIFY, &IconData);
 			}
+			else
+			{
+				IconData.hIcon = FullIcon;
+			}
+			Shell_NotifyIcon(NIM_MODIFY, &IconData);
 			break;
 		case ID_POPUP_HIDERECYCLEBIN:
 			Reg->ToggleHiddenIcon(hWnd);

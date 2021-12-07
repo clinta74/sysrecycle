@@ -6,7 +6,6 @@ private:
 
 	bool OpenRegKey();
 	bool CloseRegKey();
-	void RefreshDesktopIcons();
 	void RedrawDesktop();
 	bool OpenAutorunRegKey();
 	bool CloseAutorunRegKey();
