@@ -1,14 +1,11 @@
 class Registry
 {
 private:
-	HKEY hKey;
-	HKEY hKeyAutorun;
-
-	bool OpenRegKey();
-	bool CloseRegKey();
+	bool OpenRegKey(HKEY* hKey);
+	bool CloseRegKey(HKEY hKey);
 	void RedrawDesktop();
-	bool OpenAutorunRegKey();
-	bool CloseAutorunRegKey();
+	bool OpenAutorunRegKey(HKEY* hKey);
+	bool CloseAutorunRegKey(HKEY hKey);
 	LPWSTR GetExecutablePath();
 
 public:
