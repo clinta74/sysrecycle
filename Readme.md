@@ -9,4 +9,4 @@ THIS SOFTWARE CAN NOT BE RESOLD WITH EXPRESS PREMISSION OF THE AUTHOR.
 
 ## Download
 A download of the installation is available here
-- [v6.0](https://www.pollyspeople.net/download/SysRecyle.msi)
+- [v6.0](https://www.pollyspeople.net/download/SysRecycle.msi)
