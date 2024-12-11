@@ -82,6 +82,7 @@
     <ClInclude Include="SysRecycleReg.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Readme.md" />
     <None Include="Systray.ico" />
   </ItemGroup>
   <ItemGroup>
