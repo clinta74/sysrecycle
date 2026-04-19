@@ -12,22 +12,22 @@ const int ID_POPUP_HIDERECYCLEBIN = 3;
 const int ID_POPUP_EMPTYRECYCLEBIN = 4;
 const int ID_POPUP_OPENRECYCLEBIN = 5;
 const int ID_POPUP_RUNATSTARTUP = 40001;
-const char *HINT_MESSAGE = "SysRecycle";
+const wchar_t *HINT_MESSAGE = L"SysRecycle";
 Registry *Reg;
 
-int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
 	WNDCLASSEX wcex{};
 
-	if (lstrcmp(lpCmdLine, "aero") == 0)
+	if (lstrcmp(lpCmdLine, L"aero") == 0)
 	{
-		EmptyIcon = LoadIcon(hInstance, "EMPTYICON");
-		FullIcon = LoadIcon(hInstance, "FULLICON");
+		EmptyIcon = LoadIcon(hInstance, L"EMPTYICON");
+		FullIcon = LoadIcon(hInstance, L"FULLICON");
 	}
 	else
 	{
-		EmptyIcon = LoadIcon(hInstance, "EMPTYICONMETRO");
-		FullIcon = LoadIcon(hInstance, "FULLICONMETRO");
+		EmptyIcon = LoadIcon(hInstance, L"EMPTYICONMETRO");
+		FullIcon = LoadIcon(hInstance, L"FULLICONMETRO");
 	}
 
 	Reg = new Registry();
@@ -43,17 +43,17 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	wcex.hCursor= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground= (HBRUSH)(COLOR_WINDOW+1);
 	wcex.lpszMenuName= 0;
-	wcex.lpszClassName= "MyWindowClass";
+	wcex.lpszClassName= L"MyWindowClass";
 	wcex.hIconSm= EmptyIcon;
 
 	/* Now we can go ahead and register our new window class */
 	RegisterClassEx(&wcex);
 
-	HWND hWnd = CreateWindow("MyWindowClass", "The title of the Window", WS_OVERLAPPEDWINDOW,
+	HWND hWnd = CreateWindow(L"MyWindowClass", L"The title of the Window", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 	if (hWnd == NULL)
 	{
-		MessageBox(NULL, "Failed to create application window.", "Error", 0);
+		MessageBox(NULL, L"Failed to create application window.", L"Error", 0);
 		exit(1);
 	}
 
@@ -68,10 +68,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	else
 		IconData.hIcon  = FullIcon;
 
-	MainMenu = LoadMenu(hInstance, "POPUPMENU");
+	MainMenu = LoadMenu(hInstance, L"POPUPMENU");
 	if (MainMenu == NULL)
 	{
-		MessageBox(hWnd, "Menu not found.", "Error", 0);
+		MessageBox(hWnd, L"Menu not found.", L"Error", 0);
 		exit(0);
 	}
 
@@ -101,13 +101,13 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
         if (m_ulSHChangeNotifyRegister == 0)
         {
-            MessageBox(hWnd, "Failed to register shell change notifications. File deletion events will not be detected.", "Error", 0);
+            MessageBox(hWnd, L"Failed to register shell change notifications. File deletion events will not be detected.", L"Error", 0);
             exit(1);
         }
     }
     else
     {
-        MessageBox(hWnd, "Failed to get desktop folder location. Shell notifications cannot be registered.", "Error", 0);
+        MessageBox(hWnd, L"Failed to get desktop folder location. Shell notifications cannot be registered.", L"Error", 0);
         exit(1);
     }
 
@@ -124,7 +124,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	MENUITEMINFO menuItemInfo = {0};
-	char menuText[256];
+	wchar_t menuText[256];
 
 	switch (message)
 	{
@@ -151,22 +151,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case ID_POPUP_ABOUT:
 			MessageBox(hWnd,
-				"SysRecycle (Freeware)\n"
-				"for Windows 10 and 11\n"
-				"Version 6.0\n"
-				"by Clinton Andrews\n"
-				"clinton.andrews@att.net\n"
-				"Copyright (C) 2021 Clinton Andrews\n\n"
-				"THIS SOFTWARE IS PROVIDED 'AS IS'. THE DEVELOPER OF THIS SOFTWARE WILL NOT BE "
-				"HELD LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR "
-				"CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, LOSS OF USE, DATA, OR "
-				"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF "
-				"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE "
-				"OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF "
-				"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n"
-				"THIS SOFTWARE CAN NOT BE RESOLD WITH EXPRESS PREMISSION OF THE AUTHOR "
-				"CLINTON ANDREWS."
-				,"About", 0);
+				L"SysRecycle (Freeware)\n"
+				L"for Windows 10 and 11\n"
+				L"Version 6.0\n"
+				L"by Clinton Andrews\n"
+				L"clinton.andrews@att.net\n"
+				L"Copyright (C) 2021 Clinton Andrews\n\n"
+				L"THIS SOFTWARE IS PROVIDED 'AS IS'. THE DEVELOPER OF THIS SOFTWARE WILL NOT BE "
+				L"HELD LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR "
+				L"CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, LOSS OF USE, DATA, OR "
+				L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF "
+				L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE "
+				L"OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF "
+				L"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n"
+				L"THIS SOFTWARE CAN NOT BE RESOLD WITH EXPRESS PREMISSION OF THE AUTHOR "
+				L"CLINTON ANDREWS."
+				,L"About", 0);
 			break;
 		case 1:
 			DestroyWindow(hWnd);
@@ -218,8 +218,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				menuItemInfo.fState = MFS_ENABLED;
 				menuItemInfo.dwTypeData = menuText;
-				sprintf_s(menuText, "%lli files", NumFilesInBin(hWnd));
-				menuItemInfo.cch = (UINT)strlen(menuText);
+				swprintf_s(menuText, _countof(menuText), L"%lld files", NumFilesInBin(hWnd));
+				menuItemInfo.cch = (UINT)wcslen(menuText);
 				SetMenuItemInfo(PopupMenu, 6, false, &menuItemInfo);
 			}
 
@@ -265,13 +265,13 @@ bool OpenRecycleBin(HWND hWnd)
 {
 	HINSTANCE result;
 
-	char path[] = "::{645FF040-5081-101B-9F08-00AA002F954E}";
-	result = ShellExecute(hWnd, "explore", path, NULL, NULL, SW_SHOWNORMAL);
+	wchar_t path[] = L"::{645FF040-5081-101B-9F08-00AA002F954E}";
+	result = ShellExecute(hWnd, L"explore", path, NULL, NULL, SW_SHOWNORMAL);
 
 	if((INT_PTR)result > 32) return true;
-	char msg[100];
-	sprintf_s(msg, sizeof(msg), "Error Code: %llu Could not open the Recycle Bin!", (ULONG_PTR)result);
-	MessageBox(hWnd, msg, "Error", 0);
+	wchar_t msg[100];
+	swprintf_s(msg, _countof(msg), L"Error Code: %llu Could not open the Recycle Bin!", (ULONG_PTR)result);
+	MessageBox(hWnd, msg, L"Error", 0);
 	return false;
 }
 
@@ -282,7 +282,7 @@ long long NumFilesInBin(HWND hWnd)
 	HRESULT result = SHQueryRecycleBin(0, &info);
 	if (result != S_OK)
 	{
-		MessageBox(hWnd, "Could not get the number of files in Recycle Bin!", "Error", 0);
+		MessageBox(hWnd, L"Could not get the number of files in Recycle Bin!", L"Error", 0);
 		return 0;
 	}
 	return info.i64NumItems;
@@ -293,5 +293,5 @@ void EmptyRecycleBin(HWND hWnd)
 	if (NumFilesInBin(hWnd) == 0) return;
 	HRESULT result = SHEmptyRecycleBin(NULL, NULL, NULL);
 	if (result != S_OK)
-		MessageBox(hWnd, "Could not empty the files in the Recycle Bin!", "Error", 0);
+		MessageBox(hWnd, L"Could not empty the files in the Recycle Bin!", L"Error", 0);
 }
