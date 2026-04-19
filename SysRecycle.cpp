@@ -243,8 +243,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if(m_ulSHChangeNotifyRegister)
 			SHChangeNotifyDeregister(m_ulSHChangeNotifyRegister);
 		Shell_NotifyIcon(NIM_DELETE,&IconData);
-		DestroyMenu(MainMenu);
-		DestroyMenu(PopupMenu);
+		DestroyMenu(MainMenu);  // Also destroys PopupMenu (it is a submenu owned by MainMenu)
 		delete Reg;
 		Reg = nullptr;
 		PostQuitMessage(0);
