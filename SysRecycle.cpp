@@ -270,7 +270,7 @@ bool OpenRecycleBin(HWND hWnd)
 
 	if((INT_PTR)result > 32) return true;
 	char msg[100];
-	sprintf_s(msg, sizeof(msg), "Error Code: %lli Could not open the Recycle Bin!", (ULONG_PTR)result);
+	sprintf_s(msg, sizeof(msg), "Error Code: %llu Could not open the Recycle Bin!", (ULONG_PTR)result);
 	MessageBox(hWnd, msg, "Error", 0);
 	return false;
 }
@@ -282,7 +282,7 @@ long long NumFilesInBin(HWND hWnd)
 	HRESULT result = SHQueryRecycleBin(0, &info);
 	if (result != S_OK)
 	{
-		MessageBox(hWnd, "Could get the number of files in Recycle Bin!", "Error", 0);
+		MessageBox(hWnd, "Could not get the number of files in Recycle Bin!", "Error", 0);
 		return 0;
 	}
 	return info.i64NumItems;
