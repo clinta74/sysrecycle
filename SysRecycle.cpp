@@ -51,6 +51,11 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	HWND hWnd = CreateWindow("MyWindowClass", "The title of the Window", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	if (hWnd == NULL)
+	{
+		MessageBox(NULL, "Failed to create application window.", "Error", 0);
+		exit(1);
+	}
 
 	IconData.cbSize = sizeof(NOTIFYICONDATA);
 	IconData.uID    = IDC_TRAY1;
