@@ -8,10 +8,10 @@ Registry::Registry() {}
 
 bool Registry::OpenRegKey(HKEY* phKey)
 {
-	char KeyName[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel";
+	wchar_t KeyName[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel";
 	long lResult;
 
-	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE | KEY_QUERY_VALUE, NULL, phKey, NULL);
+	lResult = ::RegCreateKeyExW(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE | KEY_QUERY_VALUE, NULL, phKey, NULL);
 	if (lResult == ERROR_SUCCESS) return true;
 	return false;
 }
@@ -27,10 +27,10 @@ bool Registry::CloseRegKey(HKEY hKey)
 
 bool Registry::OpenAutorunRegKey(HKEY* phKey, REGSAM access)
 {
-	char KeyName[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
+	wchar_t KeyName[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	long lResult;
 
-	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, phKey, NULL);
+	lResult = ::RegCreateKeyExW(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, phKey, NULL);
 	if (lResult == ERROR_SUCCESS) return true;
 	return false;
 }
@@ -46,7 +46,7 @@ bool Registry::CloseAutorunRegKey(HKEY hKey)
 
 bool Registry::IsHidden()
 {
-	char ValueName[] = "{645FF040-5081-101B-9F08-00AA002F954E}";
+	wchar_t ValueName[] = L"{645FF040-5081-101B-9F08-00AA002F954E}";
 	DWORD value = 0;
 	DWORD dwLen = sizeof(DWORD);
 	long lResult = 0;
@@ -54,7 +54,7 @@ bool Registry::IsHidden()
 
 	if (OpenRegKey(&hKey))
 	{
-		lResult = ::RegQueryValueEx(hKey, ValueName, NULL, NULL, (LPBYTE)&value, &dwLen);
+		lResult = ::RegQueryValueExW(hKey, ValueName, NULL, NULL, (LPBYTE)&value, &dwLen);
 		CloseRegKey(hKey);
 	}
 
@@ -114,7 +114,7 @@ LPWSTR Registry::GetExecutablePath()
 
 bool Registry::ToggleHiddenIcon(HWND hWnd)
 {
-	char ValueName[] = "{645FF040-5081-101B-9F08-00AA002F954E}";
+	wchar_t ValueName[] = L"{645FF040-5081-101B-9F08-00AA002F954E}";
 	DWORD value = 0;
 	DWORD dwLen = sizeof(DWORD);
 	long lResult = 0;
@@ -125,7 +125,7 @@ bool Registry::ToggleHiddenIcon(HWND hWnd)
 
 	if (OpenRegKey(&hKey))
 	{
-		lResult = ::RegSetValueEx(hKey, ValueName, 0, REG_DWORD, (LPBYTE)&value, dwLen);
+		lResult = ::RegSetValueExW(hKey, ValueName, 0, REG_DWORD, (LPBYTE)&value, dwLen);
 		CloseRegKey(hKey);
 	}
 
@@ -134,7 +134,7 @@ bool Registry::ToggleHiddenIcon(HWND hWnd)
 		RedrawDesktop();
 		return true;
 	}
-	else MessageBox(hWnd, "Could not access the Registry to remove Recycle Bin from desktop.", "Error", 0);
+	else MessageBoxW(hWnd, L"Could not access the Registry to remove Recycle Bin from desktop.", L"Error", 0);
 	return false;
 }
 
@@ -176,7 +176,7 @@ bool Registry::SetAutorun(HWND hWnd)
 	}
 	else
 	{
-		MessageBox(hWnd, "Could not access the Registry to change Autorun for SysRecycle.", "Error", 0);
+		MessageBoxW(hWnd, L"Could not access the Registry to change Autorun for SysRecycle.", L"Error", 0);
 		return false;
 	}
 }
