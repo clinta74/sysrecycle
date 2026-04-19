@@ -68,43 +68,48 @@ bool Registry::IsHidden()
 
 bool Registry::IsAutorun()
 {
-	char ValueName[] = "SysRecycle";
-	BYTE byteArray[2048] = { 0 };
-	DWORD dwLen = sizeof(byteArray);
+	LPCWSTR ValueName = L"SysRecycle";
+	wchar_t storedValue[MAX_PATH * 2] = { 0 };
+	DWORD dwLen = sizeof(storedValue);
 	HKEY hKey = NULL;
+	bool match = false;
 
 	if (OpenAutorunRegKey(&hKey))
 	{
-		long lResult = ::RegQueryValueEx(hKey, ValueName, NULL, NULL, byteArray, &dwLen);
+		long lResult = ::RegQueryValueExW(hKey, ValueName, NULL, NULL, (LPBYTE)storedValue, &dwLen);
 		if (lResult == ERROR_SUCCESS)
 		{
 			LPWSTR executablePath = GetExecutablePath();
-			bool match = true;
-			for (DWORD ct = 0; ct < dwLen; ct++, executablePath++)
+			if (executablePath != NULL)
 			{
-				if (executablePath[0] != byteArray[ct])
-				{
-					match = false;
-					break;
-				}
+				// Build the same quoted path that SetAutorun writes
+				wchar_t expected[MAX_PATH * 2] = {};
+				wcscpy_s(expected, _countof(expected), L"\"");
+				wcscat_s(expected, _countof(expected), executablePath);
+				wcscat_s(expected, _countof(expected), L"\" ");
+				match = (wcscmp(storedValue, expected) == 0);
+				LocalFree(executablePath);
 			}
-
-			return match;
 		}
 		CloseAutorunRegKey(hKey);
 	}
 
-	return false;
+	return match;
 }
 
+// Returns a LocalAlloc'd wide string with the full path to this executable.
+// Caller must free the returned pointer with LocalFree().
 LPWSTR Registry::GetExecutablePath()
 {
-	int pNumArgs = 0;
-	LPWSTR commandLine = GetCommandLineW();
-	LPWSTR* szArglist = CommandLineToArgvW(commandLine, &pNumArgs);
-
-	if (pNumArgs > 0) return szArglist[0];
-	return NULL;
+	const DWORD size = MAX_PATH * 2;
+	LPWSTR path = (LPWSTR)LocalAlloc(LPTR, size * sizeof(wchar_t));
+	if (path == NULL) return NULL;
+	if (GetModuleFileNameW(NULL, path, size) == 0)
+	{
+		LocalFree(path);
+		return NULL;
+	}
+	return path;
 }
 
 bool Registry::ToggleHiddenIcon(HWND hWnd)
@@ -153,10 +158,16 @@ bool Registry::SetAutorun(HWND hWnd)
 			wchar_t szValue[count] = {};
 
 			LPWSTR pathToExe = GetExecutablePath();
+			if (pathToExe == NULL)
+			{
+				CloseRegKey(hKey);
+				return false;
+			}
 
 			wcscpy_s(szValue, count, L"\"");
 			wcscat_s(szValue, count, pathToExe);
 			wcscat_s(szValue, count, L"\" ");
+			LocalFree(pathToExe);
 
 			dwLen = (wcslen(szValue) + 1) * 2;
 
