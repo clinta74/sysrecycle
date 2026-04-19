@@ -141,11 +141,10 @@ bool Registry::ToggleHiddenIcon(HWND hWnd)
 bool Registry::SetAutorun(HWND hWnd)
 {
 	LPCWSTR keyName = L"SysRecycle";
-	size_t dwLen = sizeof(DWORD);
 	LSTATUS lResult = 0;
 	HKEY hKey = NULL;
 
-	if (OpenRegKey(&hKey))
+	if (OpenAutorunRegKey(&hKey))
 	{
 		bool isAutorun = IsAutorun();
 		if (isAutorun)
@@ -160,7 +159,7 @@ bool Registry::SetAutorun(HWND hWnd)
 			LPWSTR pathToExe = GetExecutablePath();
 			if (pathToExe == NULL)
 			{
-				CloseRegKey(hKey);
+				CloseAutorunRegKey(hKey);
 				return false;
 			}
 
@@ -169,15 +168,10 @@ bool Registry::SetAutorun(HWND hWnd)
 			wcscat_s(szValue, count, L"\" ");
 			LocalFree(pathToExe);
 
-			dwLen = (wcslen(szValue) + 1) * 2;
-
-			lResult = ::RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL, 0, (KEY_WRITE | KEY_READ), NULL, &hKey, NULL);
-			if (lResult == ERROR_SUCCESS)
-			{
-				lResult = ::RegSetValueExW(hKey, keyName, 0, REG_SZ, (BYTE*)szValue, (DWORD)dwLen);
-			}
+			DWORD dwLen = (DWORD)((wcslen(szValue) + 1) * sizeof(wchar_t));
+			lResult = ::RegSetValueExW(hKey, keyName, 0, REG_SZ, (BYTE*)szValue, dwLen);
 		}
-		CloseRegKey(hKey);
+		CloseAutorunRegKey(hKey);
 		return lResult == ERROR_SUCCESS;
 	}
 	else
