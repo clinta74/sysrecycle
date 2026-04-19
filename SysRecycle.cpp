@@ -183,7 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			menuItemInfo.fMask = MIIM_STATE;
 			if(!GetMenuItemInfo(PopupMenu, ID_POPUP_HIDERECYCLEBIN, false, &menuItemInfo))
-				exit(GetLastError());
+				DestroyWindow(hWnd);
 			else
 			{
 				if(Reg->IsHidden())
@@ -195,7 +195,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			menuItemInfo.fMask = MIIM_STATE;
 			if (!GetMenuItemInfo(PopupMenu, ID_POPUP_RUNATSTARTUP, false, &menuItemInfo))
-				exit(GetLastError());
+				DestroyWindow(hWnd);
 			else
 			{
 				if (Reg->IsAutorun())
@@ -208,7 +208,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			menuItemInfo.fMask = MIIM_TYPE;
 			menuItemInfo.fType = MFT_STRING;
 			if(!GetMenuItemInfo(PopupMenu, 6, false, &menuItemInfo))
-				exit(GetLastError());
+				DestroyWindow(hWnd);
 			else
 			{
 				menuItemInfo.fState = MFS_ENABLED;
