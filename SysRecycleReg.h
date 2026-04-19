@@ -4,7 +4,7 @@ private:
 	bool OpenRegKey(HKEY* hKey);
 	bool CloseRegKey(HKEY hKey);
 	void RedrawDesktop();
-	bool OpenAutorunRegKey(HKEY* hKey);
+	bool OpenAutorunRegKey(HKEY* hKey, REGSAM access);
 	bool CloseAutorunRegKey(HKEY hKey);
 	LPWSTR GetExecutablePath();
 

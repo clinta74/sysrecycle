@@ -25,12 +25,12 @@ bool Registry::CloseRegKey(HKEY hKey)
 	return false;
 }
 
-bool Registry::OpenAutorunRegKey(HKEY* phKey)
+bool Registry::OpenAutorunRegKey(HKEY* phKey, REGSAM access)
 {
 	char KeyName[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	long lResult;
 
-	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, phKey, NULL);
+	lResult = ::RegCreateKeyEx(HKEY_CURRENT_USER, KeyName, 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, phKey, NULL);
 	if (lResult == ERROR_SUCCESS) return true;
 	return false;
 }
@@ -74,7 +74,7 @@ bool Registry::IsAutorun()
 	HKEY hKey = NULL;
 	bool match = false;
 
-	if (OpenAutorunRegKey(&hKey))
+	if (OpenAutorunRegKey(&hKey, KEY_QUERY_VALUE))
 	{
 		long lResult = ::RegQueryValueExW(hKey, ValueName, NULL, NULL, (LPBYTE)storedValue, &dwLen);
 		if (lResult == ERROR_SUCCESS)
@@ -144,7 +144,7 @@ bool Registry::SetAutorun(HWND hWnd)
 	LSTATUS lResult = 0;
 	HKEY hKey = NULL;
 
-	if (OpenAutorunRegKey(&hKey))
+	if (OpenAutorunRegKey(&hKey, KEY_SET_VALUE | KEY_QUERY_VALUE))
 	{
 		bool isAutorun = IsAutorun();
 		if (isAutorun)
