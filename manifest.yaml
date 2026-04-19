@@ -1,0 +1,16 @@
+PackageIdentifier: ClintonAndrews.SysRecycle
+PackageVersion: 6.0.0
+PackageLocale: en-US
+PackageName: SysRecycle
+Publisher: Clinton Andrews
+ShortDescription: An application to move the Windows recycle bin to the system tray.
+License: Freeware
+Installers:
+  - Architecture: x64
+    InstallerType: msi
+    InstallerUrl: https://storage.googleapis.com/sysrecycle/SysRecycle.msi
+    InstallerSha256: 6b1d55eec0933609c32ffdefc7ad7def0fc53dfcc1f07fc960a1ce017d1b7a64
+Tags:
+  - Recycle Bin
+ManifestType: singleton
+ManifestVersion: 1.4.0
