@@ -9,4 +9,4 @@ THIS SOFTWARE CAN NOT BE RESOLD WITH EXPRESS PREMISSION OF THE AUTHOR.
 
 ## Download
 A download of the installation is available here
-- Windows 10 or 11 [v6.0](https://storage.googleapis.com/sysrecycle/sysrecycle.zip)
+- Windows 10 or 11 [v6.1](https://storage.googleapis.com/sysrecycle/sysrecycle.zip)

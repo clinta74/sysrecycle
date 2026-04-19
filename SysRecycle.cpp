@@ -153,7 +153,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MessageBox(hWnd,
 				L"SysRecycle (Freeware)\n"
 				L"for Windows 10 and 11\n"
-				L"Version 6.0\n"
+				L"Version 6.1\n"
 				L"by Clinton Andrews\n"
 				L"clinton.andrews@att.net\n"
 				L"Copyright (C) 2021 Clinton Andrews\n\n"
