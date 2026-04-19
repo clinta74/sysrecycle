@@ -115,8 +115,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	MENUITEMINFO menuItemInfo = {0};
 	char menuText[256];
 
-	Registry *Reg = new Registry;
-
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -241,6 +239,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Shell_NotifyIcon(NIM_DELETE,&IconData);
 		DestroyMenu(MainMenu);
 		DestroyMenu(PopupMenu);
+		delete Reg;
+		Reg = nullptr;
 		PostQuitMessage(0);
 		break;
 	default:
