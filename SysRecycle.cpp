@@ -1,7 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
 #include <shlobj.h>
-#include <assert.h>
 
 #include "SysRecycle.h"
 #include "SysRecycleReg.h"
@@ -94,11 +93,18 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		// contain the notifications. This array should                           
 		// always be set to one when calling SHChnageNotifyRegister
         // or SHChangeNotifyDeregister will not work properly.
-    
-        assert(m_ulSHChangeNotifyRegister != 0);    // Shell notification failed
+
+        if (m_ulSHChangeNotifyRegister == 0)
+        {
+            MessageBox(hWnd, "Failed to register shell change notifications. File deletion events will not be detected.", "Error", 0);
+            exit(1);
+        }
     }
     else
-        assert(FALSE);    // Failed to get desktop location
+    {
+        MessageBox(hWnd, "Failed to get desktop folder location. Shell notifications cannot be registered.", "Error", 0);
+        exit(1);
+    }
 
 	UpdateWindow(hWnd);
 	MSG msg;
